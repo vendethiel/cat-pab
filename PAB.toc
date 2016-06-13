@@ -1,0 +1,9 @@
+## Interface: 40300
+## Author: Kolletiv
+## Title: Party Ability Bars
+## SavedVariables: PABDB
+
+libs\LibStub\LibStub.lua
+libs\LibSimpleOptions-1.0\lib.xml
+
+PAB.lua

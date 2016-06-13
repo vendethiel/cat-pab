@@ -109,7 +109,7 @@ local defaultAbilities = {
 		[61336] = 180, --"Survival Instincts",
 		[5211] = 50, --"Bash",
 		[17116] = 180, --"Nature's Swiftness",
-		[29166] = 360, -- Innervate
+		[29166] = 180, -- Innervate
 	},
 	["HUNTER"] = {
 		[19503] = 30, --Scatter Shot
@@ -148,7 +148,7 @@ local defaultAbilities = {
 		[51713] = 60, --Shadow Dance
 		[1856] = 120, -- Vanish
 		[31224] = 90, -- Shadow Cloak
-		[5277] = 180, -- Evasion,
+		--[5277] = 180, -- Evasion, -- disabled for now, because it has 
 		[2094] = 120, -- Blind
 		[14185] = 300, -- Preparation
 	},

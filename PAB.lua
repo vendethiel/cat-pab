@@ -47,6 +47,7 @@ local InArena = function() return (select(2,IsInInstance()) == "arena") end
 
 local _iconPaths = {}
 local iconPaths = {
+	[31661] = 1, -- dragon's breath
 	[20594] = 1, -- Stoneform
 	[2139] = 1, -- Counterspell
 	[45438] = 1, -- Ice Block
@@ -98,6 +99,13 @@ local iconPaths = {
 	[61336] = 1, --"Survival Instincts",
 	[5211] = 1, --"Bash",
 	[17116] = 1, --"Nature's Swiftness",
+	[51052] = 1, --Anti-magic zone
+	[48707] = 1, --Anti-magic shell
+	[49016] = 1, --Unholy frenzy
+	[64044] = 1, --Psychic Horror
+	[98008] = 1, --Spirit Link Totem
+	[79206] = 1, --Spiritwalker grave
+	[16166] = 1, --Elemental Mastery
 }
 for k in pairs(iconPaths) do _iconPaths[GetSpellInfo(k)] = select(3,GetSpellInfo(k)) end
 iconPaths = _iconPaths
@@ -118,14 +126,20 @@ local defaultAbilities = {
 		[19263] = 110, --Deterrence 
 	},
 	["MAGE"] = 	{
-		[66] = 180, --Invisibility
-		[55342] = 180, --Mirror Image
+		--[66] = 180, --Invisibility
+		--[55342] = 180, --Mirror Image
 		[2139] = 24, -- Counterspell
-		[44572] = 30,	--"Deep Freeze",
-		[82676] = 120, -- Ring of Frost
-		[11426] = 24,	--"Ice Barrier", 
 		[45438] = 300, -- Ice Block
-		[11958] = 384,	--"Cold Snap",
+		[82676] = 120, -- Ring of Frost
+	},
+	["MAGE:2"] = { -- Firemage
+		[31661] = 17, -- Dragon Breath
+		[11129] = 120, -- Combustion
+	},
+	["MAGE:3"] = { -- Frostmage
+		[44572] = 30,	--"Deep Freeze"
+		[11426] = 24,	--"Ice Barrier" 
+		[11958] = 384,	--"Cold Snap"
 	},
 	["PALADIN"] = {
 		[853] = 60, -- Hammer of Justice			
@@ -134,34 +148,47 @@ local defaultAbilities = {
 		[642] = 300, --Divine Shield
 	},
 	["PRIEST"] = {
-		[8122] = 30, -- Psychic Scream
-		[34433] = 240, --Shadowfiend			
+		[34433] = 300, --Shadowfiend (V: used to be 240, wrong data/wotlk data?)
 		[64901] = 360, --Hymn of Hope
 		[64843] = 480, --Divine Hymn
 		[73325] = 90, --Leap of Faith
+		[8122] = 30, -- Psychic Scream
+	},
+	["PRIEST:1"] = { -- Discipline
 		[33206] = 180, -- Painsup
+		[62618] = 180, -- Power Word: Barrier
+ 	},
+	["PRIEST:3"] = { -- Shadow
+		[47585] = 120, -- Dispersion
+		[64044] = 90, -- Psychic Horror (V: 120 without the glyph)
 	},
 	["ROGUE"] = {		
 		[1766] = 10, -- Kick
 		[2983] = 60, -- Sprint
 		[76577] = 180, --Smoke Bomb
-		[51713] = 60, --Shadow Dance
 		[1856] = 120, -- Vanish
-		[31224] = 90, -- Shadow Cloak
-		--[5277] = 180, -- Evasion, -- disabled for now, because it has 
+		[31224] = 90, -- Cloak of Shadows
+		--[5277] = 180, -- Evasion, -- disabled for now, because it has [IT HAS??]
 		[2094] = 120, -- Blind
+	},
+	["ROGUE:3"] = { --Subtelty
+		[51713] = 60, --Shadow Dance
 		[14185] = 300, -- Preparation
 	},
-	["SHAMAN"] = {
-		[57994] = 15, --"Wind Shear",
+	["SHAMAN"] = { 
 		[8177] = 25, --Grounding Totem
-		[16190] = 180,				--"Mana Tide Totem",
-		[8143] = 60,				--"Tremor Totem", patch 4.0.6
-		[79206] = 120,			--"Spiritwalker's Grace",
+		--[16190] = 180, --"Mana Tide Totem", -- broken
+		[8143] = 60,	--"Tremor Totem", patch 4.0.6
+		[79206] = 120,	--"Spiritwalker's Grace",
+		[57994] = 15, --"Wind Shear", (V: NOTE! It is expected all shamans will go instant ghostwolf, instead of reduced wind shear)
+		[51514] = 35, --Hex
+	},
+	["SHAMAN:2"] = { -- Enhance
 		[16166] = 180,			--"Elemental Mastery",
+	},
+	["SHAMAN:3"] = { -- Restauration
 		[16188] = 120,				--"Nature's Swiftness",
 		[98008] = 180,			--"Spirit Link Totem",
-		[51514] = 35, --Hex
 	},
 	["WARLOCK"] = {
 		[19647] = 24, -- Spell Lock		
@@ -169,7 +196,10 @@ local defaultAbilities = {
 		[5484] = 32, --Howl of Terror
 		[77801] = 120, --Demon Soul
 		[6789] = 90, -- Death Coil
-		[77801] = 120, 				-- Dark soul
+		[77801] = 120, 	-- Dark soul
+	},
+	["WARLOCK:3 "] = { --Destruction
+		[30283] = 20, -- Shadowfury
 	},
 	["WARRIOR"] = {
 		[6552] = 10, -- Pummel
@@ -181,10 +211,13 @@ local defaultAbilities = {
 		[47476] = 120,				--"Strangulate",
 		[49576] = 25,				--"Death Grip",	
 		[48707] = 45,				--"Anti-Magic Shell",
-		[51052] = 120,				--"Anti-Magic Zone",
 		[49039] = 120,				--"Lichborne",
 		--[51271] = 60,				--"Pillar of Frost",
 		--[49222] = 60,				--"Bone Shield",
+	},
+	["DEATHKNIGHT:3"] = { -- Unholy
+		[51052] = 120,				--"Anti-Magic Zone",
+		[49016] = 180,				--Unholy Frenzy
 	},
 	["PVP"] = {
 		[CD_ID_EVERY_MAN_FOR_HIMSELF] = CD_PVP_COOLDOWN,
@@ -416,14 +449,40 @@ function PAB:UpdateAnchorIcon(anchor, numIcons, ability, cooldown)
 end
 
 function PAB:UpdateAnchors()
+	local _self = self
 	for i=1,GetNumPartyMembers() do
 		local _,class = UnitClass("party"..i)
 		if not class then return end
+
 		local anchor = anchors[i]
 		anchor.GUID = UnitGUID("party"..i)
 		anchor.class = select(1,UnitClass("party"..i))
 		local abilities = db.abilities[class]
 		local numIcons = 1
+
+		-- V: try to gather data about the spec
+		-- TODO this might notg get triggered upon entering arena - must check if it does.
+		if CanInspect("party"..i) then
+			local f = CreateFrame("Frame") -- used to inspect players
+			f:SetScript("OnEvent", function (self, event,...)
+				--local spec_id = GetInspectSpecialization("party"..i) -- MOP only :(
+				f:UnregisterEvent("INSPECT_READY")
+				ClearInspectPlayer()
+				anchor.spec = GetPrimaryTalentTree(true)
+				if not anchor.spec then return end
+				local talentAbilities = db.abilities[class..":"..anchor.spec]
+
+				if talentAbilities then
+					for ability,cooldown in pairs(talentAbilities) do
+						_self:UpdateAnchorIcon(anchor, numIcons, ability, cooldown)
+						numIcons = numIcons + 1
+					end
+					_self:HideUnusedIcons(numIcons, anchor.icons)
+				end
+			end)
+			f:RegisterEvent("INSPECT_READY")
+			NotifyInspect("party"..i)
+		end
 
 		 -- V: add race-specific code for trinket display
 		anchor.race = select(2, UnitRace("party"..i))
@@ -433,7 +492,7 @@ function PAB:UpdateAnchors()
 			self:UpdateAnchorIconFromSpellId(anchor, numIcons, CD_ID_TRINKET, CD_PVP_COOLDOWN) -- PVP trinket
 		end
 		numIcons = numIcons + 1
-		-- extra: WOTF for undead (aka scourge)
+		-- V -- extra: WOTF for undead (aka scourge)
 		if anchor.race == "Scourge" then
 			self:UpdateAnchorIconFromSpellId(anchor, numIcons, CD_ID_WOTF, CD_PVP_COOLDOWN) -- WOTF
 			numIcons = numIcons + 1
@@ -478,6 +537,7 @@ function PAB:ApplyAnchorSettings()
 end
 
 function PAB:PARTY_MEMBERS_CHANGED()
+	print("party changed!!1")
 	if not pGUID then pGUID = UnitGUID("player") end
 	if not pName then pName = UnitName("player") end
 	self:RequestSync()
@@ -502,7 +562,6 @@ function PAB:CheckAbility(anchor,ability,cooldown,pIndex)
 	end
 	if not cooldown then return end
 	for k,icon in ipairs(anchor.icons) do
-
 		-- Direct cooldown
 		--and icon.shouldShow
 		if icon.ability == ability then icon.Start(cooldown) end
@@ -539,7 +598,10 @@ function PAB:CHAT_MSG_ADDON(prefix, message, dist, sender)
 end
 
 function PAB:SendCooldownMessage(ability,cooldown)
-	SendAddonMessage(CommPrefix, pGUID.."|"..ability.."|"..cooldown, "PARTY")
+	-- V: pGUID can be null... if we have no party
+	if pGUID then
+		SendAddonMessage(CommPrefix, pGUID.."|"..ability.."|"..cooldown, "PARTY")
+	end
 end
 
 function PAB:SendCooldown(ability,rep)
@@ -551,13 +613,23 @@ function PAB:SendCooldown(ability,rep)
 	end
 end
 
-function PAB:UNIT_SPELLCAST_SUCCEEDED(unit,ability)
+function PAB:UNIT_SPELLCAST_SUCCEEDED(unit,ability,_rank,_lineID,spellID)
 	if syncGUIDS[UnitGUID(unit)] then return end
 	if unit == "player" then self:SendCooldown(ability) return end
 	local pIndex = match(unit,"party[pet]*([1-4])")
 	if pIndex and ability then
 		local _,class = UnitClass("party"..pIndex)
-		self:CheckAbility(anchors[tonumber(pIndex)],ability,db.abilities[class][ability],pIndex) 
+		local anchor = anchors[tonumber(pIndex)]
+		self:CheckAbility(anchor,ability,db.abilities[class][ability],pIndex)
+		-- V: check we fetched spec before trying this
+		if anchor.spec then
+			local specAbilities = db.abilities[class..":"..anchor.spec]
+			if specAbilities then
+				self:CheckAbility(anchor,ability,specAbilities[ability],pIndex)
+			end
+			print("player (spec ".. anchor.spec ..") used: "..ability.."="..spellID)
+		end
+
 	end
 end
 
@@ -577,9 +649,16 @@ local function PAB_OnUpdate(self,elapsed)
 			if icon.active then
 				icon.timeleft = icon.starttime + icon.cooldown - GetTime()
 				if icon.timeleft <= 0 then
-					if db.hidden then icon:Hide() end
-					activeGUIDS[icon.GUID][icon.ability] = nil
-					icon.active = nil
+					-- V: added a lot of null checks
+					if db and db.hidden then
+						icon:Hide()
+					end
+					if icon then
+						if activeGUIDS and activeGUIDS[icon.GUID] and activeGUIDS[icon.ability] then
+							activeGUIDS[icon.GUID][icon.ability] = nil
+						end
+						icon.active = nil
+					end
 				end
 			end
 		end
@@ -607,11 +686,15 @@ end
 local function PAB_OnLoad(self)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED")
+--	self:RegisterEvent("RAID_ROSTER_UPDATE")
+--	self:RegisterEvent("PLAYER_ROLES_ASSIGNED")
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	self:RegisterEvent("CHAT_MSG_ADDON")
 	self:SetScript("OnEvent",function(self,event,...) if self[event] then self[event](self,...) end end)
 	
 	PABDB = PABDB or { abilities = defaultAbilities, scale = 1  }
+	-- V: DISABLED CACHE FOR TESTING!
+	--PABDB = { abilities = defaultAbilities, scale = 1  }
 	db = PABDB
 
 	self:CreateAnchors()
@@ -825,7 +908,11 @@ function PAB:CreateAbilityEditor()
 	     			PAB:UpdateScrollBar()
 	     			PAB:UpdateAnchors()
 	     		else
-	     			print("Invalid spell name and/or cooldown")
+	     			if cdtext then
+	     				print("Invalid spell name (unable to find the ability, or the ability icon)")
+	     			else
+	     				print("Unable spell cooldown")
+	     			end
 	     		end
 	      end
 	)
